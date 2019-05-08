@@ -228,7 +228,7 @@ var Init = function(time, sid, ua, cookie) {
     toDataURLvalue = RanStr(32);
     GPUValue = RanGPU();
     document.body.clientWidth = document.documentElement.clientWidth = screen.availWidth = screen.width = RanV(80,256) * 10;
-    document.body.clientHeight = screen.availHeight = document.documentElement.clientHeight = screen.height = RanV(6, screen.width / 10) * 10;
+    document.body.clientHeight = screen.availHeight = document.documentElement.clientHeight = screen.height = RanV(60, screen.width / 10) * 10;
     outerWidth = screen.width - RanV(300, 600);
     outerHeight = screen.height - RanV(100, 200);
     startime = parseInt(time);
