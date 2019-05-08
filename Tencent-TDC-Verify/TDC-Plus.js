@@ -64,7 +64,7 @@ var canvas = {
             this.getParameter= function() {
                 return GPUValue;
             },
-            this.getExtension= function(n) {
+            this.getExtension= function(n) { //此处方法和前一个方法组成，用于获取显卡名称，若未正确运行则返回一串Hash值，成功运行返回GPUValue
                 return n == "WEBGL_debug_renderer_info" ? WebGLDebugRendererInfo : {}
             },
             this.beginPath=this.arc=this.closePath=this.fill=this.rect=this. isPointInPath=this.fillRect=this.fillText=EmptyFunc;
@@ -77,7 +77,7 @@ var canvas = {
 };
 
 
-var addEventListener = function(type, listener, options) {
+var addEventListener = function(type, listener, options) {//此处type在某些地方可能会用到deviceorientation,自行listener(deviceorientation)即可
     type = type.toLowerCase();
     if (type == "load") listener();
     else if (["mousedown","mousemove","mouseup","click"].includes(type)) {
@@ -108,7 +108,7 @@ var document = {
         removeChild: EmptyFunc
     },
     createElement: function(n) {
-        return "canvas" == n ? canvas : "span" == n ? span : {
+        return "canvas" == n ? canvas : "span" == n ? span : {//default值亦为遗留版本，不做更改
             addEventListener: addEventListener,
             contentWindow: {}
         };
@@ -131,8 +131,8 @@ var document = {
 };
 var navigator = {
     userAgent: "",
-    getBattery: function() {
-	var func = function(resolve, reject) {
+    getBattery: function() {			//此处在tdc.js中测试与浏览器运行流程一致。基本都会检测是否支持getBattery
+	var func = function(resolve, reject) {		
             resolve(BatteryManager);
         }
         return obj = new Promise(func),obj.then = func,obj;
@@ -140,10 +140,10 @@ var navigator = {
     languages: ["zh-CN", "zh"],
     plugins: [],
     cookieEnabled: true,
-    "[CODE_VERIFY]iframes": EmptyFunc
+    "[CODE_VERIFY]iframes": EmptyFunc		//较老版本遗留下来的方法，可能是发生错误导致的，但最后不做更改
 }
 
-var Event = function(x, y, type) {
+var Event = function(x, y, type) {		//某些JS会检查toElement来源，如117.js   自行更改
     this.x = this.clientX = this.offsetX = this.screenX = this.pageX = x,
     this.y = this.clientY = this.offsetY = this.screenX = this.pageY = y,
     this.touches = this.targetTouches = this.changedTouches = [this],
@@ -172,16 +172,16 @@ var screen = {
 };
 
 var Date_ = Date;
-var timeplus = 0,
+var timeplus = 0,		//时间增量，起始时间
     startime = 0;
 Date = function() {
     var timeX = new Date_;
     timeX.setTime(startime + timeplus);
     return timeX;
 };
-Date.parse = Date_.parse;
+Date.parse = Date_.parse;	//除了new Date外也会从parse得到时间，此处最好直接复制Date_全部方法
 
-var Feature = {
+var Feature = {				//滑块特征，每个页面不一样
     clientType: "2",
     coordinate: [10, 24, 0.4118],
     trycnt: 1,
@@ -193,7 +193,7 @@ var Feature = {
     ft: "qf_7P_n_H"
 }
 
-var Track_Build = function(startx,index, select){
+var Track_Build = function(startx,index, select){//Track_Build(起始位置，滑块位置，是否为slideValue)
 	var $t = select ? RanV(500, 1000) : RanV(2000, 3000),$x = startx,$y = RanV(190,200),$startx = $x;
 	var Arr = [];
 	Arr.push([$x,$y,$t]);
@@ -214,7 +214,7 @@ var Track_Build = function(startx,index, select){
 	return Arr;
 }
 
-var slide_build = function(t, s) {
+var slide_build = function(t, s) { //slide_build(slideValue,cdata)
     s = parseInt(s);
     for (var e, n = [], o = 0; o < t.length; o++) {
         var a = t[o];
@@ -225,46 +225,41 @@ var slide_build = function(t, s) {
 }
 
 var Init = function(time, sid, ua, cookie) {
-    toDataURLvalue = RanStr(32);
-    GPUValue = RanGPU();
+    toDataURLvalue = RanStr(32);			//canvas.toDataURL(), 随机值。此处会对其做hash，所以任意值即可。
+    GPUValue = RanGPU();							//原文，不Hash
     document.body.clientWidth = document.documentElement.clientWidth = screen.availWidth = screen.width = RanV(80,256) * 10;
     document.body.clientHeight = screen.availHeight = document.documentElement.clientHeight = screen.height = RanV(60, screen.width / 10) * 10;
     outerWidth = screen.width - RanV(300, 600);
-    outerHeight = screen.height - RanV(100, 200);
-    startime = parseInt(time);
-    location.href = "https://ssl.captcha.qq.com/cap_union_new_show?sid=" + sid;
-    navigator.userAgent = ua;
-    document.referrer="https://xui.ptlogin2.qq.com/cgi-bin/xlogin?";
-    document.cookie = cookie;
+    outerHeight = screen.height - RanV(100, 200);				//此处还有innerWidth、和innerWidth。未给出
+    startime = parseInt(time);							//自定义起始时间
+    location.href = "https://ssl.captcha.qq.com/cap_union_new_show?sid=" + sid;	//此处若不为闭包调试，浏览器将自行跳转
+    navigator.userAgent = ua;							
+    document.referrer="https://xui.ptlogin2.qq.com/cgi-bin/xlogin?";		//prehandle的referrer
+    document.cookie = cookie;	//cookie，重要！无CK可能会返回错误结果或直接异常	//TDC_itoken
 }
 
 function getvalue(time, cookie, sid, index, cdata, ua) {
     Init(time, sid, ua, cookie);
-    index = parseInt(index);
-    cdata = parseInt(cdata);
+    index = parseInt(index);//滑块位置，最左边
+    cdata = parseInt(cdata);//cdata，用于slideValue末后缀
 	var startx =  Feature.coordinate[1] + RanV(1, Math.floor(Feature.coordinate[1] / 2));
 	var moveValue = Track_Build(startx,index), slideValue = Track_Build(startx,index, true);
-	var downValue = [slideValue[0]], upValue = [slideValue[slideValue.length - 1]];
+	//moveValue为屏幕鼠标轨迹数据，不只是滑块。slideValue为滑块轨迹数据
+	var downValue = [slideValue[0]], upValue = [slideValue[slideValue.length - 1]];		//模拟mousedown、mouseup坐标
 	upValue[0][0] = index;
-	Feature.slideValue = slide_build(slideValue, cdata);
-    [TDCJS]
+	Feature.slideValue = slide_build(slideValue, cdata);	//置入slideValue滑块轨迹数据
+    [TDCJS]							//此处是tdc.js文件数据,直接替换即可
     var TDC = window.TDC;
     TDC.setData(Feature);
-    var i = 0;
-    var EventX = {};
-    EventX = new window.Event(downValue[0][0], downValue[0][1], "mousedown");
-    timeplus = downValue[0][2];
-    FuncArr["mousedown"](EventX);
-    for (i = 0; i < moveValue.length; i++) {
-        EventX = new window.Event(moveValue[i][0], moveValue[i][1], "mousemove");
-        timeplus = moveValue[i][2];
-        FuncArr["mousemove"](EventX);
+    EventX = new window.Event(downValue[0][0], downValue[0][1], "mousedown"), timeplus = downValue[0][2];
+    FuncArr["mousedown"](EventX);				//触发mousedown事件
+    for (var i = 0; i < moveValue.length; i++) {
+        EventX = new window.Event(moveValue[i][0], moveValue[i][1], "mousemove"), timeplus = moveValue[i][2];
+        FuncArr["mousemove"](EventX);				//触发mousemove事件
     }
-    EventX = new window.Event(upValue[0][0], upValue[0][1], "mouseup");
-    timeplus = upValue[0][2];
-    FuncArr["mouseup"](EventX);
-    EventX = new window.Event(upValue[0][0], upValue[0][1], "click");
-    timeplus = upValue[0][2];
-    FuncArr["click"](EventX);
-    return decodeURIComponent(TDC.getData());
+    EventX = new window.Event(upValue[0][0], upValue[0][1], "mouseup"), timeplus = upValue[0][2];
+    FuncArr["mouseup"](EventX);					//触发mouseup事件
+    EventX.type = "click";
+    FuncArr["click"](EventX);					//click与mouseup事件一致
+    return decodeURIComponent(TDC.getData());			//getData
 }
