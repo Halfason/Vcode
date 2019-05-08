@@ -77,7 +77,7 @@ var canvas = {
 };
 
 
-var addEventListener = function(type, listener, options) {//此处type在某些地方可能会用到deviceorientation,自行listener(deviceorientation)即可
+var addEventListener = function(type, listener, options) {//此处type在某些地方可能会用到deviceorientation,自行listener(DeviceoriEvent)即可
     type = type.toLowerCase();
     if (type == "load") listener();
     else if (["mousedown","mousemove","mouseup","click"].includes(type)) {
