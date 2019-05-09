@@ -143,9 +143,9 @@ var navigator = {
     "[CODE_VERIFY]iframes": EmptyFunc		//较老版本遗留下来的方法，可能是发生错误导致的，但最后不做更改
 }
 
-var Event = function(x, y, type) {		//某些JS会检查toElement来源，如117.js   自行更改
+var Event = function(x, y, type) {		//某些JS会检查toElement或srcElement的class来源，如117.js   需要的话自行更改
     this.x = this.clientX = this.offsetX = this.screenX = this.pageX = x,
-    this.y = this.clientY = this.offsetY = this.screenX = this.pageY = y,
+    this.y = this.clientY = this.offsetY = this.screenY = this.pageY = y,
     this.touches = this.targetTouches = this.changedTouches = [this],
     this.type = type,
     this.toElement = this.srcElement = {},
